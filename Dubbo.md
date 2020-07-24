@@ -526,7 +526,86 @@ public class RedisListenerConfig {
 
 # Git命令
 
+Git命令一览：
+
 ![](E:\DistCode\TyporaLoad\git-cheatsheet_1.png)
+
+## Git命令详细
+
+拥有一个版本库的方法有如下几个：
+
+* cd进本地电脑的任意文件夹然后打开bash直接从远程仓库clone一个仓库下来
+
+  ```
+  git clone git@github.com:michaelliao/gitskills.git 将远程仓库克隆下来
+  ```
+
+* 本地也可以创建自己一个版本库，cd进任一目录，使用 git init 命令就可以直接将此目录及以下的文件加入版本库，然后想将本地仓库关联到远程仓库的话就需要先在远程仓库创建一个仓库，然后使用如下命令进行关联.
+
+  ```
+  git remote add origin git@github.com:helloworq/WeiBoSurface.git
+  ```
+
+  这里可以看到有账户信息，显然我们需要配置一下自己的信息告诉远程仓库我是谁，不然谁都可以关联仓库。
+
+* 第1步：创建SSH Key。在用户主目录下，看看有没有.ssh目录，如果有，再看看这个目录下有没有`id_rsa`和`id_rsa.pub`这两个文件，如果已经有了，可直接跳到下一步。如果没有，打开Shell（Windows下打开Git Bash），创建SSH Key：
+
+  ```
+  $ ssh-keygen -t rsa -C "youremail@example.com"
+  ```
+
+  你需要把邮件地址换成你自己的邮件地址，然后一路回车，使用默认值即可，由于这个Key也不是用于军事目的，所以也无需设置密码。
+
+  如果一切顺利的话，可以在用户主目录里找到`.ssh`目录，里面有`id_rsa`和`id_rsa.pub`两个文件，这两个就是SSH Key的秘钥对，`id_rsa`是私钥，不能泄露出去，`id_rsa.pub`是公钥，可以放心地告诉任何人。
+
+  第2步：登陆GitHub，打开“Account settings”，“SSH Keys”页面：
+
+  然后，点“Add SSH Key”，填上任意Title，在Key文本框里粘贴`id_rsa.pub`文件的内容：
+
+  ![github-addkey-1](https://www.liaoxuefeng.com/files/attachments/919021379029408/0)
+
+  点“Add Key”，你就应该看到已经添加的Key：
+
+  ![github-addkey-2](https://www.liaoxuefeng.com/files/attachments/919021395420160/0)
+
+  为什么GitHub需要SSH Key呢？因为GitHub需要识别出你推送的提交确实是你推送的，而不是别人冒充的，而Git支持SSH协议，所以，GitHub只要知道了你的公钥，就可以确认只有你自己才能推送。
+
+  当然，GitHub允许你添加多个Key。假定你有若干电脑，你一会儿在公司提交，一会儿在家里提交，只要把每台电脑的Key都添加到GitHub，就可以在每台电脑上往GitHub推送了。
+
+  最后友情提示，在GitHub上免费托管的Git仓库，任何人都可以看到喔（但只有你自己才能改）。所以，不要把敏感信息放进去。关联完成之后就可以向远程仓库推送了。
+
+  
+
+  接下来介绍一些常用的操作
+
+  ```git
+  git log --pretty=oneline            将commit信息压缩成一行
+  git reset --hard head^              返回上一个版本
+  git reset --haed commitID           返回指定commitID所指向的版本
+  git reflog                          记录每一次的操作命令
+  git checkout -- file                丢弃工作区的修改，如果是添加到暂存区后还做了修改那                                     么此命令将会把文件恢复到初始添加到暂存区时的状态
+  git reset head file                 将已经放入到暂存区的文件重新放回工作区
+  git rm file                         文件手动删除之后再使用此命令将彻底删除此文件
+  git checkout -- file                从版本库里恢复误删文件
+  git branch branchname               创建branchname分支
+  git checkout branchname             切换到branchname分支
+  git checkout -b branchname          相当于上两条命令
+  git branch -d branchname            删除branchname分支
+  git merge branchname                合并branchname分支到当前分支
+  git log --graph                     查看分支合并图
+  
+  
+  ```
+
+  
+
+* 
+
+* 
+
+* 
+
+  
 
 # 仿微博页面
 
