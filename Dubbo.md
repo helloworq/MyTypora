@@ -593,7 +593,16 @@ Git命令一览：
   git branch -d branchname            删除branchname分支
   git merge branchname                合并branchname分支到当前分支
   git log --graph                     查看分支合并图
-  
+  git stash                           保存当前修改
+  git cherry-pick commitID            将特定分支的提交复用到当前分支
+  git remote                          查看远程库信息
+  git remote -v                       查看自己对远程仓库所拥有的权限
+  git checkout -b dev origin/dev      如果从远程仓库克隆的是master分支使                                     用此命令可以切换到远程dev分支，但是                                     此时可能并未指定当前分支与远程dev分                                     支关联，需要使用此命令进行关联  git                                     branch --set-upstream-                                             to=origin/dev dev               
+  git log --pretty=oneline --abbrev-commit     和第一句差不多，但是这个                                     将commitID也压缩了
+  git tag tagname                     将最新的commitID值变为tagname
+  git tag tagname commitID            将指定commitID值变更为tagname
+  git show tagname                    显示tag信息
+  git tag -d tagname                  删除tag
   
   ```
 
