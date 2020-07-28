@@ -522,8 +522,6 @@ public class RedisListenerConfig {
 
 ## Springboot+Redis实现缓存
 
-# Springboot集成Mongodb
-
 # Git命令
 
 Git命令一览：
@@ -612,9 +610,33 @@ Git命令一览：
 
 * 
 
-* 
 
-  
+# FastJSON
+
+```
+Stringtestjsonstr=son.testString;
+//json字符串转json对象
+JSONObjectjsonObject=JSONObject.parseObject(testjsonstr);
+//System.out.println(jsonObject.get("message"));
+//获取json对象里的json对象
+JSONObjectjsonObjectone=(JSONObject)jsonObject.get("data");
+JSONObjectjsonObjecttwo=(JSONObject)jsonObject.get("cityInfo");
+//System.out.println(jsonObjectone.get("quality"));
+//获取json对象里的json对象数组,获取完后可以像数组那样直接获取
+JSONArrayjsonArray=jsonObjectone.getJSONArray("forecast");
+//System.out.println(jsonArray.get(1));
+//json对象转普通对象
+//构建json结构数据
+JSONObjectjsonObjectres=newJSONObject();
+jsonObjectres.put("message",jsonObject.get("message").toString());
+jsonObjectres.put("city",jsonObjecttwo.get("city").toString());
+jsonObjectres.put("citykey",jsonObjecttwo.get("citykey").toString());
+//将数据转换为目标类
+POJOpojo=JSONObject.parseObject(jsonObjectres.toJSONString(),POJO.class);
+System.out.println(pojo.getCity());
+```
+
+
 
 # 仿微博页面
 
@@ -730,4 +752,384 @@ leftpart通过这个样式占据左边
 	margin-top: 10px;
 }
 ```
+
+
+
+# MongoDB
+
+数据库在很大程度上是由其数据模型来定义的。MongoDB的数据模型是面向文档的。文档基本上是一组属性名和属性值的集合。属性的值可以是简单的数据类型，例如字符串、数字和日期。但这些值也可以是数组，甚至是其他文档，这让文档可以表示各种富数据结构。相对于传统的关系型数据库，MongoDB无须预定义Schema，这就意味着当开发初期需要频繁修改字段的话工作量大大减少。
+
+## 创建/删除数据库
+
+```
+> use databasename
+> db.dropdatabase()
+```
+
+此时数据库并未真正的创建成功，当第一次插入数据的时候才会创建成功。
+
+## 创建/删除集合
+
+```
+> db.createCollection(name, options)
+                                        参数说明：
+                                        name: 要创建的集合名称
+                                        options: 可选参数, 指定有关内存大小及索引的选项
+
+还可以直接插入集合数据，Mongo会帮你自动创建集合
+> db.mycol2.insert({"name" : "菜鸟教程"})
+> show collections
+  mycol2
+```
+
+## 插入文档
+
+```
+> db.col.insert({title: 'MongoDB 教程', 
+    description: 'MongoDB 是一个 Nosql 数据库',
+    by: '菜鸟教程',
+    url: 'http://www.runoob.com',
+    tags: ['mongodb', 'database', 'NoSQL'], //注意这里可以插入数组，这点和普通json不一样
+    likes: 100
+})
+```
+
+## 修改文档
+
+```
+> db.col.update({'title':'MongoDB 教程'},{$set:{'title':'MongoDB'}})
+以上语句只会修改第一条发现的文档，如果你要修改多条相同的文档，则需要设置 multi 参数为 true。
+> db.col.update({'title':'MongoDB 教程'},{$set:{'title':'MongoDB'}},{multi:true})
+> db.collection.save()  //这条命令和insert不一样的是insert会检查id是否冲突，冲突了则不插                         //入，save命令不管，有冲突也插进去当成更新操作，没有冲突的话就和                           //insert一样
+```
+
+## 删除文档
+
+```
+db.col.remove({"title":"MongoDB 教程"})   //删除符合条件的文档
+db.col.remove({"title":"MongoDB 教程"},1) //仅删除一条
+```
+
+## 查询文档
+
+```
+db.col.find()
+```
+
+
+
+
+
+# Maven
+
+尝试新建一个微服务项目并完成多模块打包部署首先项目结构如图所示，参考链接 
+
+https://www.cnblogs.com/victorbu/p/10895676.html
+
+![](E:\DistCode\TyporaLoad\Dubbo.assets\QQ截图20200728162149.jpg)
+
+父元素pom信息
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <packaging>pom</packaging>            //打包方式设置为pom
+    <modules>                             //包含子模块
+        <module>consumer</module>
+        <module>provider</module>
+        <module>Api</module>
+    </modules>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.3.2.RELEASE</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+    <groupId>com.example</groupId>
+    <artifactId>parent</artifactId>
+    <version>1.0.0</version>
+    <name>parent</name>
+    <url>http://maven.apache.org</url>
+    <description>Parent project for Spring Boot</description>
+    
+    <properties>
+        <java.version>1.8</java.version>
+        <maven.compiler.plugin.version>3.6.0</maven.compiler.plugin.version>
+        <mavne.surefire.plugin.version>2.19.1</mavne.surefire.plugin.version>
+        <maven-war-plugin.version>2.6</maven-war-plugin.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.junit.vintage</groupId>
+                    <artifactId>junit-vintage-engine</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+    <!--============== 配置私服START =============== -->
+    <repositories>
+        <repository>
+            <id>DistNexus</id>
+            <url>http://58.246.138.178:22280/nexus/content/groups/public/</url>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>DistNexus</id>
+            <url>http://58.246.138.178:22280/nexus/content/groups/public/</url>
+        </pluginRepository>
+    </pluginRepositories>
+    <distributionManagement>
+        <repository>
+            <id>DistNexusRelease</id>
+            <url>http://58.246.138.178:22280/nexus/content/repositories/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>DistNexusSnapshot</id>
+            <url>http://58.246.138.178:22280/nexus/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+    <!--============== 配置私服End =============== -->
+    
+    <!-- 打包编译插件 -->
+    
+    <build>
+        <plugins>
+            <!--maven的编译插件-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven.compiler.plugin.version}</version>
+                <configuration>
+                    <!--开发版本-->
+                    <source>${java.version}</source>
+                    <!--.class文件版本-->
+                    <target>${java.version}</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+            <!--maven打包跳过测试-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${mavne.surefire.plugin.version}</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+```
+
+Api模块pom配置信息
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.example</groupId>
+        <artifactId>parent</artifactId>
+        <version>1.0.0</version>                     <!-- 依赖父pom，必须指定父pom的地址！ -->
+        <relativePath>../pom.xml</relativePath><!-- lookup parent from repository -->
+    </parent>
+    <groupId>com.example</groupId>
+    <artifactId>api</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
+    <name>api</name>
+    <description>Api project for Spring Boot</description>
+
+    <properties>
+        <java.version>1.8</java.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>Api</finalName>
+    </build>
+
+</project>
+```
+
+consumer模块pom信息
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.example</groupId>
+        <artifactId>parent</artifactId>
+        <version>1.0.0</version>                     <!-- 依赖父pom，必须指定父pom的地址！ -->
+        <relativePath>../pom.xml</relativePath> <!-- lookup parent from repository -->
+    </parent>
+    <groupId>com.example</groupId>
+    <artifactId>consumer</artifactId>
+    <version>1.0.0</version>
+    <packaging>war</packaging>
+    <name>consumer</name>
+    <description>consumer project for Spring Boot</description>
+
+    <properties>
+        <java.version>1.8</java.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.example</groupId>
+            <artifactId>api</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+<!-- 必要的配置，指定主类以及springboot自带的打包插件 -->
+    <build>
+        <finalName>consumer</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        <plugins>
+            <!--创建项目时自带的 -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <!-- 自己添加的 -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>1.5.13.RELEASE</version>
+                <configuration>
+                    <mainClass>
+                        com.example.consumer.ConsumerApplication
+                    </mainClass>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
+```
+
+provider模块的pom信息（和consumer几乎一样）
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.example</groupId>
+        <artifactId>parent</artifactId>
+        <version>1.0.0</version>
+        <relativePath>../pom.xml</relativePath> <!-- lookup parent from repository -->
+    </parent>
+    <groupId>com.example</groupId>
+    <artifactId>provider</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
+    <name>provider</name>
+    <description>provider project for Spring Boot</description>
+
+    <properties>
+        <java.version>1.8</java.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.example</groupId>
+            <artifactId>api</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>provider</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        <plugins>
+            <!--创建项目时自带的 -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <!-- 自己添加的 -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>1.5.13.RELEASE</version>
+                <configuration>
+                    <mainClass>
+                        com.example.provider.ProviderApplication
+                    </mainClass>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
+
+```
+
+全部完成之后依次点击父模块的clean->install完成打包
+
+# Linux
 
