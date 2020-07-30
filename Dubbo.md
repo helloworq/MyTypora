@@ -1224,4 +1224,3 @@ Print Working Directory
 	mv file dir 如果dir不存在文件将被命名成dir
 
 ## vi/vim
-
