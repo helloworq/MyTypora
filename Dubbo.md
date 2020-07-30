@@ -1,5 +1,3 @@
-
-
 # Dubbo学习记录
 
 ## Dubbo的XML配置文件运行demo
@@ -522,6 +520,136 @@ public class RedisListenerConfig {
 
 ## Springboot+Redis实现缓存
 
+### 普通cache缓存
+
+#### 导入依赖
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-cache</artifactId>
+</dependency>
+```
+
+#### 启动类加上注解
+
+```java
+@EnableCaching
+@EnableDubbo(scanBasePackages = "com.mydubbo.dubbo")
+@PropertySource("classpath:/application.properties")
+@SpringBootApplication
+public class DubboconsumerApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(DubboconsumerApplication.class, args);
+    }
+}
+```
+
+#### @Cacheable
+
+```java
+@Cacheable(value = "emp" ,key = "targetClass + methodName +#p0")
+public List<NewJob> queryAll(User uid) {
+    return newJobDao.findAllByUid(uid);
+}
+
+/*
+此处的User实体类一定要实现序列化public class User implements Serializable，否则会报java.io.NotSerializableException异常。
+*/
+```
+
+#### @Cacheput
+
+```java
+/*
+@CachePut注解的作用 主要针对方法配置，能够根据方法的请求参数对其结果进行缓存，和 @Cacheable 不同的是，它每次都会触发真实方法的调用 。简单来说就是用户更新缓存数据。但需要注意的是该注解的value 和 key 必须与要更新的缓存相同，也就是与@Cacheable 相同。示例：
+*/
+@CachePut(value = "emp", key = "targetClass + #p0")
+public NewJob updata(NewJob job) {
+    //查询数据库更新缓存
+    NewJob newJob = newJobDao.findAllById(job.getId());
+    newJob.updata(job);
+    return job;
+}
+
+@Cacheable(value = "emp", key = "targetClass +#p0")
+public NewJob save(NewJob job) {
+    newJobDao.save(job);
+    return job;
+}
+```
+
+#### @CacheEvict
+
+```java
+//@CachEvict的作用 主要针对方法配置，能够根据一定的条件对缓存进行清空 。
+@Cacheable(value = "emp",key = "#p0.id")
+public NewJob save(NewJob job) {
+    newJobDao.save(job);
+    return job;
+}
+
+//清除一条缓存，key为要清空的数据
+@CacheEvict(value="emp",key="#id")
+public void delect(int id) {
+    newJobDao.deleteAllById(id);
+}
+
+//方法调用后清空所有缓存
+@CacheEvict(value="accountCache",allEntries=true)
+public void delectAll() {
+    newJobDao.deleteAll();
+}
+
+//方法调用前清空所有缓存
+@CacheEvict(value="accountCache",beforeInvocation=true)
+public void delectAll() {
+    newJobDao.deleteAll();
+}
+```
+
+#### 组合Caching
+
+```java
+@Caching(
+cacheable = {
+        @Cacheable(value = "emp",key = "#p0"),
+        ...
+},
+put = {
+        @CachePut(value = "emp",key = "#p0"),
+        ...
+},evict = {
+        @CacheEvict(value = "emp",key = "#p0"),
+        ....
+})
+public User save(User user) {
+    ....
+}
+```
+
+### 使用Redis缓存
+
+```java
+@Configuration
+public class RedisConfig extends CachingConfigurerSupport {
+
+    @Bean
+    public RedisCacheManager cacheManager(RedisConnectionFactory factory) {
+        return RedisCacheManager.create(factory);
+    }
+
+    @Bean
+    public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory factory) {
+        RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(factory);
+        return redisTemplate;
+    }
+}
+```
+
+
+
 # Git命令
 
 Git命令一览：
@@ -613,7 +741,7 @@ Git命令一览：
 
 # FastJSON
 
-```
+```java
 Stringtestjsonstr=son.testString;
 //json字符串转json对象
 JSONObjectjsonObject=JSONObject.parseObject(testjsonstr);
@@ -635,125 +763,6 @@ jsonObjectres.put("citykey",jsonObjecttwo.get("citykey").toString());
 POJOpojo=JSONObject.parseObject(jsonObjectres.toJSONString(),POJO.class);
 System.out.println(pojo.getCity());
 ```
-
-
-
-# 仿微博页面
-
-强烈推荐[菜鸟教程](https://www.runoob.com/css/css-tutorial.html)
-
-首先定义一个全局div将所有的元素都包在里面
-
-```html
-<div class="bodycontent" style="width: 1024px;height: auto; margin: 0 auto;"/>
-```
-
-在css里面的配置
-
-```css
-style="width: 1024px;height: auto; margin: 0 auto;"
-```
-
-加入layui的导航栏
-
-```html
-<div id="nav">
-	<ul class="layui-nav">
-	  <li class="layui-nav-item"><a href="">最新活动</a></li>
-	  <li class="layui-nav-item layui-this">
-		<a href="javascript:;">产品</a>
-	  </li>
-	  <li class="layui-nav-item"><a href="">大数据</a></li>
-	  <li class="layui-nav-item">
-		<a href="javascript:;">解决方案</a>
-	  </li>
-	  <li class="layui-nav-item"><a href="">社区</a></li>
-	</ul>
-</div>
-```
-
-加入长图
-
-```html
-<div class="weiboheader">
-	<img class="weiboheaderpic" src="https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=14356876,365809084&fm=26&gp=0.jpg" />
-	<div class="headONlongpicPosition">
-		<img class="headONlongpic" src="https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1418315404,2308746069&fm=26&gp=0.jpg">
-	</div>
-	<div class="operaONlongpicPosition">
-		<button class="layui-btn layui-btn-danger"><i class="layui-icon">&#xe624;</i> 关注</button>
-		<button class="layui-btn layui-btn-normal"><i class="layui-icon">&#xe609;</i> 私信</button>
-	</div>
-</div>
-```
-
-css样式
-
-```css
-		/*主样式，将div块的位置与父元素的居中位置相关联*/
-		.weiboheader{
-			position: relative;
-		}
-		/*控制图片大小以及与导航栏的间距*/
-		.weiboheaderpic{
-			margin-top: 10px;
-			width: 1024px;
-			height: 300px;
-		}
-		/*通过绝对定位控制头像位置*/
-		/*因为div里的父元素已经与主父元素位置相关联所以绝对定位也是相对的*/
-		.headONlongpicPosition {
-			position: absolute;
-			top: 50px;
-			left: 462px
-		}
-		/*控制头像的大小以及形状*/
-		.headONlongpic{
-			width: 100px;
-			height: 100px;
-			border-radius: 100%;
-		}
-		/*通过绝对定位控制关注和私信的位置*/
-		.operaONlongpicPosition{
-			position: absolute;
-			top: 200px;
-			left: 425px
-        }
-```
-
-接下来就是主要内容区域，我将区域大致分为了两块，
-
-Leftpart     
-
-![](E:\DistCode\TyporaLoad\微信截图_20200723094854.png)
-
-maincontent
-
-![](E:\DistCode\TyporaLoad\微信截图_20200723094901.png)
-
-```css
-leftpart通过这个样式占据左边
-.leftpart{
-	float: left;
-	display: block;
-	width: 30%;
-	height: 10240px;
-	margin-right: 10px;
-}
-
-相应的maincontent样式为
-.maincontent{
-	float: left;
-	display: block;
-	background-color: white;
-	padding: 20px;
-	width: 65%;
-	height: auto;
-	margin-top: 10px;
-}
-```
-
-
 
 # MongoDB
 
@@ -780,27 +789,32 @@ leftpart通过这个样式占据左边
 > db.mycol2.insert({"name" : "菜鸟教程"})
 > show collections
   mycol2
+> db.collection.drop()                  删除集合
 ```
 
 ## 插入文档
 
 ```
-> db.col.insert({title: 'MongoDB 教程', 
-    description: 'MongoDB 是一个 Nosql 数据库',
-    by: '菜鸟教程',
-    url: 'http://www.runoob.com',
-    tags: ['mongodb', 'database', 'NoSQL'], //注意这里可以插入数组，这点和普通json不一样
-    likes: 100
-})
+> db.col.insert(
+    {   
+        title: 'MongoDB 教程', 
+        description: 'MongoDB 是一个 Nosql 数据库',
+        by: '菜鸟教程',
+        url: 'http://www.runoob.com',
+        tags: ['mongodb', 'database', 'NoSQL'], //注意这里可以插入数组，这点和普通json不一样
+        likes: 100
+    }
+)
 ```
 
-## 修改文档
+## 更新文档
 
 ```
 > db.col.update({'title':'MongoDB 教程'},{$set:{'title':'MongoDB'}})
 以上语句只会修改第一条发现的文档，如果你要修改多条相同的文档，则需要设置 multi 参数为 true。
 > db.col.update({'title':'MongoDB 教程'},{$set:{'title':'MongoDB'}},{multi:true})
-> db.collection.save()  //这条命令和insert不一样的是insert会检查id是否冲突，冲突了则不插                         //入，save命令不管，有冲突也插进去当成更新操作，没有冲突的话就和                           //insert一样
+> db.collection.save()  //这条命令和insert不一样的是insert会检查id是否冲突，冲突了则不插                         //入，save命令不管，有冲突也插进去当成更新操作，没有冲突的话就和                           
+      //insert一样
 ```
 
 ## 删除文档
@@ -816,11 +830,337 @@ db.col.remove({"title":"MongoDB 教程"},1) //仅删除一条
 db.col.find()
 ```
 
+## 条件操作符
+
+### MongoDB (>) 大于操作符 - $gt
+
+如果你想获取 "col" 集合中 "likes" 大于 100 的数据，你可以使用以下命令：
+
+```
+db.col.find({likes : {$gt : 100}})
+```
+
+类似于SQL语句：
+
+```
+Select * from col where likes > 100;
+```
+
+### MongoDB（>=）大于等于操作符 - $gte
+
+如果你想获取"col"集合中 "likes" 大于等于 100 的数据，你可以使用以下命令：
+
+```
+db.col.find({likes : {$gte : 100}})
+```
+
+类似于SQL语句：
+
+```
+Select * from col where likes >=100;
+```
+
+### MongoDB (<) 小于操作符 - $lt
+
+如果你想获取"col"集合中 "likes" 小于 150 的数据，你可以使用以下命令：
+
+```
+db.col.find({likes : {$lt : 150}})
+```
+
+类似于SQL语句：
+
+```
+Select * from col where likes < 150;
+```
+
+### MongoDB (<=) 小于等于操作符 - $lte
+
+如果你想获取"col"集合中 "likes" 小于等于 150 的数据，你可以使用以下命令：
+
+```
+db.col.find({likes : {$lte : 150}})
+```
+
+类似于SQL语句：
+
+```
+Select * from col where likes <= 150;
+```
+
+### MongoDB 使用 (<) 和 (>) 查询 - $lt 和 $gt
+
+如果你想获取"col"集合中 "likes" 大于100，小于 200 的数据，你可以使用以下命令：
+
+```
+db.col.find({likes : {$lt :200, $gt : 100}})
+```
+
+类似于SQL语句：
+
+```
+Select * from col where likes>100 AND  likes<200;
+```
+
+### MongoDB 操作符 - $type 实例
+
+如果想获取 "col" 集合中 title 为 String 的数据，你可以使用以下命令：
+
+```
+db.col.find({"title" : {$type : 2}})
+或
+db.col.find({"title" : {$type : 'string'}})
+```
+
+### MongoDB Limit与Skip方法
+
+limit()方法基本语法如下所示：
+
+```
+>db.COLLECTION_NAME.find().limit(NUMBER)
+//示例
+> db.col.find({},{"title":1,_id:0}).limit(2)
+{ "title" : "PHP 教程" }
+{ "title" : "Java 教程" }
+```
+
+skip() 方法脚本语法格式如下：
+
+```
+>db.COLLECTION_NAME.find().limit(NUMBER).skip(NUMBER)
+//实例以下实例只会显示第二条文档数据
+>db.col.find({},{"title":1,_id:0}).limit(1).skip(1)
+{ "title" : "Java 教程" }
+```
+
+### MongoDB 排序
+
+在 MongoDB 中使用 sort() 方法对数据进行排序，sort() 方法可以通过参数指定排序的字段，并使用 1 和 -1 来指定排序的方式，其中 1 为升序排列，而 -1 是用于降序排列。
+
+sort()方法基本语法如下所示：
+
+```
+>db.COLLECTION_NAME.find().sort({KEY:1})
+```
 
 
 
 
-# Maven
+
+# Springboot整合JPA
+
+## 环境准备
+
+* 导入依赖
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-jpa</artifactId>
+</dependency>
+<dependency>
+    <groupId>mysql</groupId>
+    <artifactId>mysql-connector-java</artifactId>
+    <scope>runtime</scope>
+</dependency>
+<dependency>
+    <groupId>org.projectlombok</groupId>
+    <artifactId>lombok</artifactId>
+    <optional>true</optional>
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-devtools</artifactId>
+    <optional>true</optional>
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-test</artifactId>
+    <scope>test</scope>
+</dependency>
+```
+
+* application.properties配置信息
+
+```properties
+#mysql配置信息
+server.servlet.context-path=/
+spring.datasource.url=jdbc:oracle:thin:@127.0.0.1/ORCL
+spring.datasource.username=dgp_ars
+spring.datasource.password=pass
+spring.datasource.driver-class-name=oracle.jdbc.driver.OracleDriver
+#spring data jpa配置信息
+spring.jpa.database=oracle
+spring.jpa.show-sql=true
+spring.jpa.hibernate.ddl-auto=update
+```
+
+> ddl-auto
+
+- `create`：每次运行程序时，都会重新创建表，故而数据会丢失
+- `create-drop`：每次运行程序时会先创建表结构，然后待程序结束时清空表
+- `upadte`：每次运行程序，没有表时会创建表，如果对象发生改变会更新表结构，原有数据不会清空，只会更新（推荐使用）
+- `validate`：运行程序会校验数据与数据库的字段类型是否相同，字段不同会报错
+- `none`: 禁用DDL处理
+
+## 简单的REST CRUD示例
+
+* 实体类
+
+```java
+package com.example.springbootjpa.entity;
+
+import lombok.Data;
+import org.hibernate.annotations.GenericGenerator;
+
+import javax.persistence.*;
+
+@Entity
+@Table(name = "tb_user")
+@Data
+public class User {
+
+    @Id
+    @GenericGenerator(name = "idGenerator", strategy = "uuid")
+    @GeneratedValue(generator = "idGenerator")
+    private String id;
+
+    @Column(name = "username", unique = true, nullable = false, length = 64)
+    private String username;
+
+    @Column(name = "password", nullable = false, length = 64)
+    private String password;
+
+    @Column(name = "email", length = 64)
+    private String email;
+
+}
+
+```
+
+> 主键采用UUID策略
+>  `@GenericGenerator`是Hibernate提供的主键生成策略注解，注意下面的`@GeneratedValue`（JPA注解）使用generator = "idGenerator"引用了上面的name = "idGenerator"主键生成策略
+
+* DAO层
+
+```java
+package com.example.springbootjpa.repository;
+
+import com.example.springbootjpa.entity.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface UserRepository extends JpaRepository<User, String> {
+}
+```
+
+* Controller层
+
+```java
+package com.example.springbootjpa.controller;
+
+import com.example.springbootjpa.entity.User;
+import com.example.springbootjpa.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Optional;
+
+@RestController
+@RequestMapping("/users")
+public class UserController {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @PostMapping()
+    public User saveUser(@RequestBody User user) {
+        return userRepository.save(user);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteUser(@PathVariable("id") String userId) {
+        userRepository.deleteById(userId);
+    }
+
+    @PutMapping("/{id}")
+    public User updateUser(@PathVariable("id") String userId, @RequestBody User user) {
+        user.setId(userId);
+        return userRepository.saveAndFlush(user);
+    }
+
+    @GetMapping("/{id}")
+    public User getUserInfo(@PathVariable("id") String userId) {
+        Optional<User> optional = userRepository.findById(userId);
+        return optional.orElseGet(User::new);
+    }
+
+    @GetMapping("/list")
+    public Page<User> pageQuery(@RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
+                                @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize) {
+        return userRepository.findAll(PageRequest.of(pageNum - 1, pageSize));
+    }
+
+}
+```
+
+## 使用
+
+* 声明一个接口继承自Repository或Repositoy的一个子接口，对于Spring Data Jpa通常是JpaRepository，如：
+
+```java
+@RepositoryDefinition(domainClass = UserInfo.class, idClass = String.class)
+public interface UserRepositry extends JpaRepository<UserInfo,String> {
+
+    List<UserInfo> findByUsername(String username);
+
+    List<UserInfo> findByEmail(String email);
+
+    List<UserInfo> findByEmail(String email, Pageable pageable);
+}
+```
+
+* 直接注入就行
+
+```java
+    @Autowired
+    UserRepositry userRepositry;
+```
+
+## 分页查询及排序
+
+Spring Data Jpa可以在方法参数中直接传入`Pageable`或`Sort`来完成动态分页或排序，通常Pageable或Sort会是方法的最后一个参数，如：
+
+```java
+@Query("select u from User u where u.username like %?1%")
+Page<User> findByUsernameLike(String username, Pageable pageable);
+
+@Query("select u from User u where u.username like %?1%")
+List<User> findByUsernameAndSort(String username, Sort sort);
+```
+
+那调用repository方法时传入什么参数呢？对于Pageable参数，在Spring Data 2.0之前我们可以new一个`org.springframework.data.domain.PageRequest`对象，现在这些构造方法已经废弃，取而代之Spring推荐我们使用PageRequest的of方法
+
+```java
+new PageRequest(0, 5);
+new PageRequest(0, 5, Sort.Direction.ASC, "username");
+new PageRequest(0, 5, new Sort(Sort.Direction.ASC, "username"));
+        
+PageRequest.of(0, 5);               //这里切换到6-10页只需要将0自增成1
+PageRequest.of(0, 5, Sort.Direction.ASC, "username");
+PageRequest.of(0, 5, Sort.by(Sort.Direction.ASC, "username"));
+```
+
+
+
+# Maven多模块打包
 
 尝试新建一个微服务项目并完成多模块打包部署首先项目结构如图所示，参考链接 
 
@@ -935,7 +1275,7 @@ https://www.cnblogs.com/victorbu/p/10895676.html
 
 Api模块pom配置信息
 
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -973,7 +1313,7 @@ Api模块pom配置信息
 
 consumer模块pom信息
 
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -1055,7 +1395,7 @@ consumer模块pom信息
 
 provider模块的pom信息（和consumer几乎一样）
 
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -1130,97 +1470,3 @@ provider模块的pom信息（和consumer几乎一样）
 ```
 
 全部完成之后依次点击父模块的clean->install完成打包
-
-# Linux
-
-```
-可以使用 man [命令] 来查看各个命令的使用文档，如 ：man cp。
-
-处理目录的常用命令
-    ls: 列出目录及文件名
-    cd：切换目录
-    pwd：显示目前的目录
-    mkdir：创建一个新的目录
-    rmdir：删除一个空的目录
-    cp: 复制文件或目录
-    rm: 移除文件或目录
-    mv: 移动文件与目录，或修改文件与目录的名称
-```
-
-## 处理目录的常用命令
-
-### ls (列出目录)
-
-选项与参数：
-        -a ：全部的文件，连同隐藏文件( 开头为 . 的文件) 一起列出来(常用)
-        -d ：仅列出目录本身，而不是列出目录内的文件数据(常用)
-        -l ：长数据串列出，包含文件的属性与权限等等数据；(常用)
-        将目录下的所有文件列出来(含属性与隐藏档)
-        [root@www ~]# ls -al ~      可叠加使用
-
-### cd (切换目录)  
-
- changedirectory
-
-
-
-### pwd (显示目前所在的目录)   
-
-Print Working Directory
-
-选项与参数：
-    -P ：显示出确实的路径，而非使用连结 (link) 路径。 
-
-
-
-### mkdir (创建新目录)
-选项与参数：
-    -m ：配置文件的权限喔！直接配置，不需要看默认权限 (umask) 的脸色～
-    -p ：帮助你直接将所需要的目录(包含上一级目录)创建起来
-
-
-
-###  rmdir (删除空目录)
-选项与参数：
-    -p ：连同上一级『空的』目录也一起删除 
-    
-
-### cp (复制文件或目录)
-语法:
-    [root@www ~]# cp [-adfilprsu] 来源档(source) 目标档(destination)
-    [root@www ~]# cp [options] source1 source2 source3 .... directory
-选项与参数：
-    -a：相当於 -pdr 的意思，至於 pdr 请参考下列说明；(常用)
-    -d：若来源档为连结档的属性(link file)，则复制连结档属性而非文件本身；
-     -f：为强制(force)的意思若目标文件已经存在且无法开启，则移除后再尝试一次
-     -i：若目标档(destination)已经存在时，在覆盖时会先询问动作的进行(常用)
-     -l：进行硬式连结(hard link)的连结档创建，而非复制文件本身；
-    -p：连同文件的属性一起复制过去，而非使用默认属性(备份常用)；
-     -r：递归持续复制，用於目录的复制行为；(常用)
-    -s：复制成为符号连结档 (symbolic link)，亦即『捷径』文件；
-    -u：若 destination 比 source 旧才升级 destination ！
-
-
-
-### rm (移除文件或目录)
-
-语法：
-    rm [-fir] 文件或目录
-选项与参数：
-    -f ：就是 force 的意思，忽略不存在的文件，不会出现警告信息；
-    -i ：互动模式，在删除前会询问使用者是否动作
-    -r ：递归删除啊！最常用在目录的删除了！这是非常危险的选项！！！   
-
-
-
-### mv (移动文件与目录，或修改名称)
-语法：
-    [root@www ~]# mv [-fiu] source destination
-    [root@www ~]# mv [options] source1 source2 source3 .... directory
-选项与参数：
-    -f ：force 强制的意思，如果目标文件已经存在，不会询问而直接覆盖；
-    -i ：若目标文件 (destination) 已经存在时，就会询问是否覆盖！
-    -u ：若目标文件已经存在，且 source 比较新，才会升级 (update)
-	mv file dir 如果dir不存在文件将被命名成dir
-
-## vi/vim
