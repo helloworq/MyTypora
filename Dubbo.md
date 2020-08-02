@@ -2,7 +2,7 @@
 
 ## Dubbo的XML配置文件运行demo
 
-<img src="E:\DistCode\TyporaLoad\pic\wps1.png" alt="Dubbo框架" style="zoom:100%;" />
+<img src="C:\Users\12733\Desktop\wps1.png" alt="Dubbo框架" style="zoom:100%;" />
 
 需求：生产者提供负责提供一个UserService方法，功能是打印一段话.消费者则是调用这个方法并打印一段话出来.
 
@@ -747,8 +747,8 @@ Stringtestjsonstr=son.testString;
 JSONObjectjsonObject=JSONObject.parseObject(testjsonstr);
 //System.out.println(jsonObject.get("message"));
 //获取json对象里的json对象
-JSONObjectjsonObjectone=(JSONObject)jsonObject.get("data");
-JSONObjectjsonObjecttwo=(JSONObject)jsonObject.get("cityInfo");
+JSONObject jsonObjectone=(JSONObject)jsonObject.get("data");
+JSONObject jsonObjecttwo=jsonObject.getJsonObject("cityInfo");
 //System.out.println(jsonObjectone.get("quality"));
 //获取json对象里的json对象数组,获取完后可以像数组那样直接获取
 JSONArrayjsonArray=jsonObjectone.getJSONArray("forecast");
@@ -1168,7 +1168,7 @@ https://www.cnblogs.com/victorbu/p/10895676.html
 
 ![](E:\DistCode\TyporaLoad\Dubbo.assets\QQ截图20200728162149.jpg)
 
-父元素pom信息
+## 父元素pom信息
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -1273,7 +1273,7 @@ https://www.cnblogs.com/victorbu/p/10895676.html
 </project>
 ```
 
-Api模块pom配置信息
+## Api模块pom配置信息
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -1311,7 +1311,7 @@ Api模块pom配置信息
 </project>
 ```
 
-consumer模块pom信息
+## consumer模块pom信息
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -1393,7 +1393,7 @@ consumer模块pom信息
 </project>
 ```
 
-provider模块的pom信息（和consumer几乎一样）
+## provider模块的pom信息（和consumer几乎一样）
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -1470,3 +1470,99 @@ provider模块的pom信息（和consumer几乎一样）
 ```
 
 全部完成之后依次点击父模块的clean->install完成打包
+
+
+
+# Springboot集成Swagger
+
+
+
+## 加入依赖
+
+```xml
+	<dependency>
+		<groupId>com.spring4all</groupId>
+		<artifactId>swagger-spring-boot-starter</artifactId>
+		<version>1.7.0.RELEASE</version>
+	</dependency>
+```
+
+## 启动类加上注解
+
+```java
+import io.swagger.annotations.Api;
+import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
+
+@EnableSwagger2
+@SpringBootApplication
+@MapperScan("com.example.testspringboot.dao")
+public class DemoApplication extends SpringBootServletInitializer {
+
+    public static void main(String[] args) {
+        SpringApplication.run(DemoApplication.class, args);
+    }
+    @Override//为了打包springboot项目
+    protected SpringApplicationBuilder configure(
+            SpringApplicationBuilder builder) {
+        return builder.sources(this.getClass());
+    }
+
+}
+```
+
+## application.properties文件配置访问地址
+
+```java
+springfox.documentation.swagger.v2.path: /api-docs
+
+默认访问地址是：http://localhost:8080/swagger-ui.html
+
+可以通过这种方式修改路径:
+    
+@Controller
+public class HomeController {
+
+    @RequestMapping(value = "/swagger")
+    public String index() {
+        System.out.println("swagger-ui.html");
+        return "redirect:swagger-ui.html";
+    }
+}
+```
+
+## 注解一览
+
+### api标记
+
+```
+Api 用在类上，说明该类的作用。可以标记一个Controller类做为swagger 文档资源，使用方式：
+
+@Api(value = "/user", description = "Operations about user")
+
+@Controller
+@RequestMapping("/controller1")
+@Api(value = "/user", description = "Operations about user")
+public class SwaggerController {
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
