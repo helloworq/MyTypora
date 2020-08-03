@@ -1537,10 +1537,10 @@ public class HomeController {
 
 ## 注解一览
 
-### api标记
+### @Api标记
 
-```
-Api 用在类上，说明该类的作用。可以标记一个Controller类做为swagger 文档资源，使用方式：
+```JAVA
+//Api 用在类上，说明该类的作用。可以标记一个Controller类做为swagger 文档资源，使用方式：
 
 @Api(value = "/user", description = "Operations about user")
 
@@ -1550,15 +1550,35 @@ Api 用在类上，说明该类的作用。可以标记一个Controller类做为
 public class SwaggerController {
 ```
 
+### @ApiOperation
 
+```java
+//ApiOperation：用在方法上，说明方法的作用，每一个url资源的定义,使用方式：
 
+@ApiOperation(
+          value = "Find purchase order by ID",
+          notes = "For valid response try integer IDs with value <= 5 or > 10. Other values will generated exceptions",
+          response = Order,
+          tags = {"Pet Store"})
+```
 
+@ApuParam
 
+```java
+//ApiParam请求属性,使用方式:
 
+public ResponseEntity<Order> getOrderById(
+      @ApiParam(value = "ID of pet that needs to be fetched", allowableValues = "range[1,5]", required = true)
+      @PathVariable("orderId") String orderId)
+```
 
+### @ApiModel
 
+描述一个Model的信息（这种一般用在post创建的时候，使用@RequestBody这样的场景，请求参数无法使用@ApiImplicitParam注解进行描述的时候；
 
+### @ApiModelProperty
 
+描述一个model的属性。
 
 
 

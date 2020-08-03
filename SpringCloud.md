@@ -1,4 +1,4 @@
-# SpringCloud实现微服务调用
+# SpringCloud-openfeign实现微服务调用
 
 ​                                                                                             参考《Springcloud实战》
 
