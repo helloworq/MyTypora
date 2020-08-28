@@ -972,22 +972,12 @@ sort()方法基本语法如下所示：
     <artifactId>lombok</artifactId>
     <optional>true</optional>
 </dependency>
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-devtools</artifactId>
-    <optional>true</optional>
-</dependency>
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-test</artifactId>
-    <scope>test</scope>
-</dependency>
 ```
 
 * application.properties配置信息
 
 ```properties
-#mysql配置信息
+#oracle配置信息
 server.servlet.context-path=/
 spring.datasource.url=jdbc:oracle:thin:@127.0.0.1/ORCL
 spring.datasource.username=dgp_ars

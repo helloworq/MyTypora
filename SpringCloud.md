@@ -187,7 +187,7 @@ eureka.client.fetch-registry= true                                    #允许注
 ### 启动类配置
 
 ```java
-@EnableDiscoveryClient
+c
 @SpringBootApplication
 public class FeignproviderApplication {
     public static void main(String[] args) {
