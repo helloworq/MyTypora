@@ -828,6 +828,8 @@ db.col.remove({"title":"MongoDB 教程"},1) //仅删除一条
 
 ```
 db.col.find()
+
+db.getCollection('fs.files').find({length:586076})//查询指定条件数据
 ```
 
 ## 条件操作符
