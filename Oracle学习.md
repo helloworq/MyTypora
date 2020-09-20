@@ -41,3 +41,7 @@
 
 
 ![091612071297_0Oracle迁移至PostgreSQL工具之Ora2Pg-lottu-博客园_6](E:\DistCode\TyporaLoad\Oracle学习.assets\091612071297_0Oracle迁移至PostgreSQL工具之Ora2Pg-lottu-博客园_6.Jpeg)
+
+迁移完之后遇到的问题。
+
+pg对大小写敏感，所以实体类的字段必须全小写，驼峰命名不允许，例如xxId在数据库中会被识别成XX_id，造成自增加字段以及无法查询到数据的问题

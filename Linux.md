@@ -98,7 +98,102 @@ Print Working Directory
 
 
 
+## 阿里云linux服务器
+
+dasffdroot Aly(dist)*ddafafessda
+
+已安装jdk，tomcat
+
+已手动开放3306,8080端口
+
+开始学习Linux系统以及vim操作
 
 
 
 
+
+返回页面的controller的映射名需要和页面名一致
+
+
+
+### 工具安装
+
+一般情况下在没有用到高级一点的工具比如redis，zk之类话最简单的只需要安装jdk，tomcat和mysql就能跑一个springboot项目了。
+
+参考链接:https://zhuanlan.zhihu.com/p/88836928?utm_source=wechat_session&utm_medium=social&utm_oi=757958042888212480
+
+下载地址：
+
+jdk：https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html
+
+mysql：https://link.zhihu.com/?target=https%3A//dev.mysql.com/downloads/mysql/5.6.html%23downloads
+
+tomcat：https://link.zhihu.com/?target=https%3A//tomcat.apache.org/download-80.cgi
+
+下载使需要的账户:
+
+```
+账号：liwei@xiaostudy.com
+
+密码：OracleTest1234
+```
+
+1.安装jdk
+
+下载好之后使用xftp传到云服务器上，选择一个合适的目录开始安装
+
+```
+tar -zxvf jdk-8u231-linux-x64.tar.gz
+编辑配置文件
+vim /etc/profile 
+在配置文件后添加下面的内容(我的是直接安装在root目录，所以路径直接写root)
+export JAVA_HOME="/root/jdk1.8.0_231"
+export PATH="$JAVA_HOME/bin:$PATH"
+刷新配置文件
+source /etc/profile
+查看是否安装成功
+java -version
+########################################################### ##############
+这里会遇到问题，/etc/profile里的配置可能只会在当前终端中生效，如果遇到了这个问题可以把jdk的配置放在~/.bashrc此文件里再执行 source ~/.bashrc
+#########################################################################
+```
+
+
+
+2.安装MySQL
+
+```
+下载这个配置文件在linux上sudo打开  https://dev.mysql.com/downloads/repo/apt/
+步骤如下
+sudo dpkg -i mysql-apt-config_0.8.10-1_all.deb
+//安装软件并进行配置，在这里配置我都选择了8.0
+sudo apt-get update
+//更新软件列表，apt-get update到底做了什么可以参考这篇博客(https://www.cnblogs.com/fenglongyu/p/8654991.html)
+sudo apt-get install mysql-server
+//设置mysql密码并选择加密方式，这里我选择了第一个
+//mysql是一个数据库，mysql-server是一个数据库的服务程序
+
+######################################################################
+遇到的问题，在linux虚拟机里配置的是阿里云apt仓库，里面貌似只有5.7版本，使用这个配置文件也不生效，还是只安装5.7的版本，遇到这个问题只能自己去下载完整安装包手动安装
+######################################################################
+
+linux下mysql的命令：
+service mysql status   //查看mysql状态
+service mysql restart  //重启mysql
+
+mysql远程连接配置
+如果想myuser使用mypassword从任何主机连接到mysql服务器的话。
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'password' WITH GRANT OPTION;
+
+FLUSH PRIVILEGES;
+```
+
+
+
+3.tomcat直接解压启动就行
+
+```
+ubuntu下启动tomcat时实时打印日志的命令:  ./startup.sh && tail -f ../logs/catalina.out
+```
+
+4.配置完成之后需要登录阿里云控制台打开对应端口
