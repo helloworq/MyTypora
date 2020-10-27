@@ -2,27 +2,27 @@
 
 ## Dubbo的XML配置文件运行demo
 
-<img src="C:\Users\12733\Desktop\wps1.png" alt="Dubbo框架" style="zoom:100%;" />
+![dubbo-architecture](E:\DistCode\TyporaLoad\Dubbo.assets\dubbo-architecture.jpg)
 
 需求：生产者提供负责提供一个UserService方法，功能是打印一段话.消费者则是调用这个方法并打印一段话出来.
 
 代码结构：将类的接口全部抽取到额外一个模块里减少冗余代码，所以总共有三个模块，如图.
 
-![](E:\DistCode\TyporaLoad\pic\wps2.jpg)
+![wps2](E:\DistCode\TyporaLoad\Dubbo.assets\wps2.jpg)
 
 然后开始实现一个最简单的dubbo样例。接口只写一个提供者的接口放在mydubboapi模块里，如图。
 
-![](E:\DistCode\TyporaLoad\wps3.png)
+![wps3](E:\DistCode\TyporaLoad\Dubbo.assets\wps3.png)
 
 接下来就是服务提供者的实现了，实现最简单的服务提供者需要三步：
 
 第一步：创建一个用于提供服务的类，本例中是实现了mydubboapi里的UserService接口。如图。
 
-![](E:\DistCode\TyporaLoad\wps4.jpg)
+![wps4](E:\DistCode\TyporaLoad\Dubbo.assets\wps4.jpg)
 
 第二步：配置提供者的信息provider.xml。从文章开头可以看到提供者需要将自己的服务暴露给注册中心，告诉它我会做啥。
 
-![](E:\DistCode\TyporaLoad\wps5.jpg)
+![wps5](E:\DistCode\TyporaLoad\Dubbo.assets\wps5.jpg)
 
 如图可以看到有五个信息，分别来解释一下。
 
@@ -40,17 +40,19 @@
 
 既然工作类有了，然后配置信息有了接下来就是激动人心的启动环节。启动代码如图所示。
 
-![](E:\DistCode\TyporaLoad\wps6.jpg)
+![wps6](E:\DistCode\TyporaLoad\Dubbo.assets\wps6.jpg)
 
 是不是简洁的不行？直接一个spring标志性的容器加载类加载一下provider.xml配置文件，再一个start就启动了！
 
 然后就是更加简单的消费者类。如首页图所示，消费者只需要知道注册中心在哪里，然后告诉注册中心自己需要什么就行了。如图。
 
-![](E:\DistCode\TyporaLoad\wps7.jpg)
+![wps7](E:\DistCode\TyporaLoad\Dubbo.assets\wps7.jpg)
+
+
 
 前两个都不需要解释，第三个说下，id值就是zookeeper上注册的服务提供类的id。就是在provider.xml上配置的信息，后一个就是告诉你这个类的接口。然后就是激动人心的消费者启动了！如图。
 
-![](E:\DistCode\TyporaLoad\wps8.jpg)
+![wps8](E:\DistCode\TyporaLoad\Dubbo.assets\wps8.jpg)
 
 和提供者一样两行代码就启动了，然后调用的时候就像项目里其他普通类直接调用。
 
@@ -654,7 +656,7 @@ public class RedisConfig extends CachingConfigurerSupport {
 
 Git命令一览：
 
-![](E:\DistCode\TyporaLoad\git-cheatsheet_1.png)
+![git-cheatsheet_1](E:\DistCode\TyporaLoad\Dubbo.assets\git-cheatsheet_1.png)
 
 ## Git命令详细
 
